@@ -4,13 +4,36 @@ author: "Max Settineri"
 date: "2023-01-26"
 output: html_document
 ---
+### Introduction
+Brief overview
 
+**Data citation:** Knapp, R.A., C. Pavelka, E.E. Hegeman, and T.C. Smith. 2020. The Sierra Lakes Inventory Project: Non-Native fish and community composition of lakes and ponds in the Sierra Nevada, California ver 2. Environmental Data Initiative. https://doi.org/10.6073/pasta/d835832d7fd00d9e4466e44eea87fab3
+
+### Setup 
 ```{r setup, include = TRUE, message = FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = TRUE, include = FALSE, message = FALSE, warning = FALSE)
 
 library(tidyverse)
 library(here)
 library(janitor)
+library(readxl)
+library(lubridate)
+
+
+```
+
+```{r}
+# reading in data and using lubridate to add a new column for year
+amphibians <- read_excel(here('data', 'sierra_amphibians.xlsx')) %>% 
+  mutate(year = year(survey_date))
+```
+
+### Visualizing Mountain Yellow-Legged Frog Counts by Year and Life Stage
+```{r}
+frog <- amphibians %>% 
+  filter(amphibian_species == 'RAMU') %>%
+  filter(amphibian_life_stage %in% c('Adult', 'SubAdult', 'Tadpole'))
+
 
 ```
 
