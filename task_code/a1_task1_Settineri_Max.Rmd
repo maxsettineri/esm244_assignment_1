@@ -29,6 +29,7 @@ amphibians <- read_excel(here('data', 'sierra_amphibians.xlsx')) %>%
 ```
 
 ### Visualizing Mountain Yellow-Legged Frog Counts by Year and Life Stage
+
 ```{r}
 frog <- amphibians %>% 
   filter(amphibian_species == 'RAMU') %>% # including only RAMU species
@@ -49,4 +50,16 @@ graph1 <- ggplot(data = frog, aes(x = year, y = total_count, fill = amphibian_li
 graph1
 ```
 
-###
+### Visualizing Mountain Yellow-Legged Frog Counts by Lake
+
+```{r}
+lake <- amphibians %>% 
+  filter(amphibian_species == 'RAMU') %>% # including only RAMU species
+  filter(amphibian_life_stage %in% c('Adult', 'SubAdult')) %>% # including only adults/subadult
+  group_by(lake_id) %>% 
+  summarize(total_count = n()) %>% 
+  mutate(lake_id = paste0("Lake ", lake_id)) %>% 
+  mutate(lake_id = as.factor(lake_id)) %>% 
+  slice_max(order_by = n, n = 5)
+```
+
