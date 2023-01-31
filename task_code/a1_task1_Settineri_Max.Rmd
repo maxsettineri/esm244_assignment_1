@@ -11,14 +11,14 @@ Brief overview
 
 ### Setup 
 ```{r setup, include = TRUE, message = FALSE, warning = FALSE}
-knitr::opts_chunk$set(echo = TRUE, include = FALSE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 library(tidyverse)
 library(here)
 library(janitor)
 library(readxl)
 library(lubridate)
-
+library(patchwork)
 
 ```
 
@@ -44,7 +44,7 @@ frog <- amphibians %>%
 graph1 <- ggplot(data = frog, aes(x = year, y = total_count, fill = amphibian_life_stage)) +
   geom_col() +
   labs(x = 'Year', y = 'Yellow-Legged Frog Count') +
-  scale_fill_manual(values = c('darkgreen', 'seagreen3', 'palegreen')) +
+  scale_fill_manual(values = c('darkgreen', 'seagreen3', 'palegreen'), name = "Amphibian Life Stage") +
   theme_minimal()
 
 graph1
@@ -76,3 +76,10 @@ graph2 <- ggplot(data = lake, aes(x = fct_reorder(lake_id, total_count, .desc = 
 graph2
 ```
 
+### Combining graphs using patchwork
+
+```{r}
+(graph1 | graph2)
+```
+
+**Figure 1:** caption here
