@@ -35,7 +35,7 @@ frog <- amphibians %>%
   filter(amphibian_species == 'RAMU') %>% # including only RAMU species
   filter(amphibian_life_stage %in% c('Adult', 'SubAdult', 'Tadpole')) %>% # excluding the life stage EggMass
   group_by(amphibian_life_stage, year) %>% 
-  summarize(total_count = n()) # getting counts for the number of species in each life stage by year
+  summarize(total_count = sum(amphibian_number)) # getting counts for the number of species in each life stage by year
 
 ```
 
@@ -57,7 +57,7 @@ lake <- amphibians %>%
   filter(amphibian_species == 'RAMU') %>% # including only RAMU species
   filter(amphibian_life_stage %in% c('Adult', 'SubAdult')) %>% # including only adults/subadult
   group_by(lake_id) %>% # grouping by lake
-  summarize(total_count = n()) %>% # getting total counts of observations at each lake
+  summarize(total_count = sum(amphibian_number)) %>% # getting total counts of observations at each lake
   mutate(lake_id = paste0("Lake ", lake_id)) %>% # adding 'Lake' text to lake_id's
   mutate(lake_id = as.factor(lake_id)) %>% # converting lake IDs to factor data
   slice_max(order_by = total_count, n = 5) %>% # including only the 5 lakes with the most observations
