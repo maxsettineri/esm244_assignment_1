@@ -5,7 +5,38 @@ date: "2023-01-31"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=TRUE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+library(AICcmodavg)
+library(tidyverse)
+library(here)
+library(equatiomatic)
+library(kableExtra)
+```
+
+```{r}
+calcofi <- read_csv(here('data', 'calcofi_seawater_samples.csv')) 
+```
+
+## Multiple Linear Regression Models
+
+Creating two multiple linear regression models:
+
+- Oxygen saturation as a function of water temperature, salinity, and phosphate concentration
+- Oxygen saturation as a function of water temperature, salinity, phosphate concentration, and depth
+
+```{r}
+f1 <- o2sat ~ t_deg_c + salinity + po4u_m
+model1 <- lm(f1, data = calcofi)
+
+f2 <- o2sat ~ t_deg_c + salinity + po4u_m + depth_m
+model2 <- lm(f2, data = calcofi)
+```
+
+## Using AIC to identify the better model
+
+```{r}
+
 ```
 
