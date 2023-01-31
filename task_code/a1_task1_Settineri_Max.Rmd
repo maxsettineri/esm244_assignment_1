@@ -60,16 +60,17 @@ lake <- amphibians %>%
   summarize(total_count = n()) %>% # getting total counts of observations at each lake
   mutate(lake_id = paste0("Lake ", lake_id)) %>% # adding 'Lake' text to lake_id's
   mutate(lake_id = as.factor(lake_id)) %>% # converting lake IDs to factor data
-  slice_max(order_by = total_count, n = 5) # including only the 5 lakes with the most observations
+  slice_max(order_by = total_count, n = 5) %>% # including only the 5 lakes with the most observations
+  arrange(desc(total_count))
 ```
 
 ```{r}
 # making a column graph with the total counts from the 5 lakes with the most observations
-graph2 <- ggplot(data = lake, aes(x = fct_reorder(lake_id, total_count), y = total_count)) +
+graph2 <- ggplot(data = lake, aes(x = fct_reorder(lake_id, total_count, .desc = TRUE), y = total_count)) +
   geom_col(aes(fill = lake_id)) +
   labs(x = ' ', y = 'Yellow-Legged Frog Count') +
   theme_minimal(10) +
-  scale_fill_manual(values = c('steelblue4', 'steelblue3', 'steelblue2', 'skyblue1', 'slategray1')) +
+  scale_fill_manual(values = c('steelblue2', 'skyblue1', 'steelblue4', 'slategray1', 'steelblue3')) +
   theme(legend.position = "none")
 
 graph2
