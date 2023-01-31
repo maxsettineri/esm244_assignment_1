@@ -44,7 +44,7 @@ frog <- amphibians %>%
 graph1 <- ggplot(data = frog, aes(x = year, y = total_count, fill = amphibian_life_stage)) +
   geom_col() +
   labs(x = 'Year', y = 'Yellow-Legged Frog Count') +
-  scale_fill_manual(values = c('darkblue', 'springgreen4', 'goldenrod1')) +
+  scale_fill_manual(values = c('darkgreen', 'seagreen3', 'palegreen')) +
   theme_minimal()
 
 graph1
@@ -56,10 +56,22 @@ graph1
 lake <- amphibians %>% 
   filter(amphibian_species == 'RAMU') %>% # including only RAMU species
   filter(amphibian_life_stage %in% c('Adult', 'SubAdult')) %>% # including only adults/subadult
-  group_by(lake_id) %>% 
-  summarize(total_count = n()) %>% 
-  mutate(lake_id = paste0("Lake ", lake_id)) %>% 
-  mutate(lake_id = as.factor(lake_id)) %>% 
-  slice_max(order_by = n, n = 5)
+  group_by(lake_id) %>% # grouping by lake
+  summarize(total_count = n()) %>% # getting total counts of observations at each lake
+  mutate(lake_id = paste0("Lake ", lake_id)) %>% # adding 'Lake' text to lake_id's
+  mutate(lake_id = as.factor(lake_id)) %>% # converting lake IDs to factor data
+  slice_max(order_by = total_count, n = 5) # including only the 5 lakes with the most observations
+```
+
+```{r}
+# making a column graph with the total counts from the 5 lakes with the most observations
+graph2 <- ggplot(data = lake, aes(x = fct_reorder(lake_id, total_count), y = total_count)) +
+  geom_col(aes(fill = lake_id)) +
+  labs(x = ' ', y = 'Yellow-Legged Frog Count') +
+  theme_minimal(10) +
+  scale_fill_manual(values = c('steelblue4', 'steelblue3', 'steelblue2', 'skyblue1', 'slategray1')) +
+  theme(legend.position = "none")
+
+graph2
 ```
 
