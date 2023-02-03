@@ -45,7 +45,9 @@ graph1 <- ggplot(data = frog, aes(x = year, y = total_count, fill = amphibian_li
   geom_col() +
   labs(x = 'Year', y = 'Yellow-Legged Frog Count') +
   scale_fill_manual(values = c('darkgreen', 'seagreen3', 'palegreen'), name = "Amphibian Life Stage") +
-  theme_minimal()
+  theme_minimal() +
+  theme(legend.position = 'top') +
+  coord_flip()
 
 graph1
 ```
@@ -61,7 +63,7 @@ lake <- amphibians %>%
   mutate(lake_id = paste0("Lake ", lake_id)) %>% # adding 'Lake' text to lake_id's
   mutate(lake_id = as.factor(lake_id)) %>% # converting lake IDs to factor data
   slice_max(order_by = total_count, n = 5) %>% # including only the 5 lakes with the most observations
-  arrange(desc(total_count))
+  arrange(desc(total_count)) 
 ```
 
 ```{r}
@@ -70,8 +72,9 @@ graph2 <- ggplot(data = lake, aes(x = fct_reorder(lake_id, total_count, .desc = 
   geom_col(aes(fill = lake_id)) +
   labs(x = ' ', y = 'Yellow-Legged Frog Count') +
   theme_minimal(10) +
-  scale_fill_manual(values = c('steelblue2', 'skyblue1', 'steelblue4', 'slategray1', 'steelblue3')) +
-  theme(legend.position = "none")
+  scale_fill_manual(values = c('steelblue3', 'slategray1', 'steelblue2', 'skyblue1', 'steelblue4')) +
+  theme(legend.position = "none") +
+  coord_flip() 
 
 graph2
 ```
