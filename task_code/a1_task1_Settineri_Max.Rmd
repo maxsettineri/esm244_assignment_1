@@ -5,8 +5,7 @@ date: "2023-01-26"
 output: html_document
 ---
 ### Introduction
-Brief overview here
-
+This report will explore the abundance of mountain yellow-legged frogs *(Rana muscosa)* in Sierra Nevada aquatic ecosystems. Data used in this analysis was gathered by the Sierra Lakes Inventory Project. 
 
 ### Setup 
 
@@ -25,7 +24,7 @@ library(patchwork)
 ```{r}
 # reading in data and using lubridate to add a new column for year
 amphibians <- read_excel(here('data', 'sierra_amphibians.xlsx')) %>% 
-  mutate(year = year(survey_date))
+  mutate(year = year(survey_date)) 
 ```
 
 ### Visualizing Mountain Yellow-Legged Frog Counts by Year and Life Stage
@@ -81,7 +80,7 @@ graph2 <- ggplot(data = lake, aes(x = fct_reorder(lake_id, total_count, .desc = 
 (graph1 | graph2)
 ```
 
-**Figure 1:** caption here
+**Figure 1:** Figure 1 displays mountain yellow-legged frog counts. The left panel shows frog counts by study year, with bar color representing life stage. The right panel depicts frog counts for the 5 lakes with the most recorded observations. 
 
 
 **Data citation:** Knapp, R.A., C. Pavelka, E.E. Hegeman, and T.C. Smith. 2020. The Sierra Lakes Inventory Project: Non-Native fish and community composition of lakes and ponds in the Sierra Nevada, California ver 2. Environmental Data Initiative. https://doi.org/10.6073/pasta/d835832d7fd00d9e4466e44eea87fab3
