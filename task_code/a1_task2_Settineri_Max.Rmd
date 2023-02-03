@@ -41,36 +41,47 @@ aictab(list(model1, model2))
 # AIC Model 1: 619.03
 # AIC Model 2: 616.60
 
-# making a table of AIC results
+# storing a table of AIC results
 aictable <- aictab(list(model1, model2))
 ```
 
 - **Model 1** has an AIC value of `r round(aictable$AICc[2], 2)`
 - **Model 2** has an AIC value of `r round(aictable$AICc[1], 2)`
-- The Delta AIC value of `r round(aictable$Delta_AICc[2], 2)` is large enough to indicate that model 2 is the best fit
-
-
+- The Delta AIC value of `r round(aictable$Delta_AICc[2], 2)` is large enough to indicate that model 2 is significantly better fit
 
 ### Using BIC to identify the better model
 
 ```{r}
 bictab(list(model1, model2))
+# BIC Model 1: 631.44
+# BIC Model 2: 631.33
+
+# storing a table with BIC results
+bictable <- bictab(list(model1, model2))
 ```
+
+- **Model 1** has a BIC value of `r round(bictable$BIC[2], 2)`
+- **Model 2** has a BIC value of `r round(bictable$BIC[1], 2)`
+- The Delta BIC value of `r round(aictable$Delta_BIC[2], 2)` is small, providing weak evidence that model 2 is better fit. This difference in delta AIC versus delta BIC is likely due to BIC penalizing model 2 for having 4 parameters to model 1's 3 parameters. 
 
 ### Comparing models using ten-fold cross validation
 
 ```{r}
+# setting the number of folds and repeating folds through the entirety of the data frame
 folds <- 10
 fold_vec <- rep(1:folds, length.out = nrow(calcofi))
 
-set.seed(42)
+set.seed(42) # setting seed for reproducibility 
 calcofi_fold <- calcofi %>% 
-  mutate(group = sample(fold_vec, size = n(), replace = FALSE))
+  mutate(group = sample(fold_vec, size = n(), replace = FALSE)) # binning data into 10 randomly selected groups
 
 table(calcofi_fold$group)
 
+# creating a subset of data for testing the model
 test_df <- calcofi_fold %>% 
   filter(group ==1)
+
+# making a subset of data to train the model
 train_df <- calcofi_fold %>% 
   filter(group != 1)
 ```
@@ -86,7 +97,7 @@ calc_rmse <- function(x, y) {
 ```
 
 ```{r}
-# training the dataset for make two linear regression models
+# training the data set to make two linear regression models
 
 training_model1 <- lm(f1, data = train_df)
 training_model2 <- lm(f2, data = train_df)
