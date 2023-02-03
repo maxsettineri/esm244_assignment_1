@@ -52,7 +52,7 @@ bictab(list(model1, model2))
 
 ```{r}
 folds <- 10
-fold_vec <- rep(1:folds, length.out = nrow(samples))
+fold_vec <- rep(1:folds, length.out = nrow(calcofi))
 
 set.seed(42)
 calcofi_fold <- calcofi %>% 
