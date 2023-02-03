@@ -4,7 +4,7 @@ author: "Max Settineri"
 date: "2023-01-26"
 output: html_document
 ---
-### Introduction
+### Overview
 This report will explore the abundance of mountain yellow-legged frogs *(Rana muscosa)* in Sierra Nevada aquatic ecosystems. Data used in this analysis was gathered by the Sierra Lakes Inventory Project. 
 
 ### Setup 

@@ -4,6 +4,11 @@ author: "Max Settineri"
 date: "2023-01-31"
 output: html_document
 ---
+### Overview
+
+This report examines data taken from the CalCOFI hydropgraphic database. The relationship between oxygen saturation, water temperature, salinity, phosphate concentration, and depth is explored through two different models developed using multiple linear regression. These two models are then compared using AIC, BIC, and ten-fold cross validation to determine best fit. 
+
+### Setup
 
 ```{r setup, include=TRUE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, results = FALSE)
@@ -45,6 +50,13 @@ aictab(list(model1, model2))
 aictable <- aictab(list(model1, model2))
 ```
 
+```{r, results = TRUE}
+kable(aictable, digits = 2) %>% 
+  kable_classic(full_width = FALSE)
+```
+
+**Table 1** shows the results of the AIC analysis of model 1 versus model 2
+
 - **Model 1** has an AIC value of `r round(aictable$AICc[2], 2)`
 - **Model 2** has an AIC value of `r round(aictable$AICc[1], 2)`
 - The Delta AIC value of `r round(aictable$Delta_AICc[2], 2)` is large enough to indicate that model 2 is significantly better fit
@@ -60,11 +72,20 @@ bictab(list(model1, model2))
 bictable <- bictab(list(model1, model2))
 ```
 
+```{r, results = TRUE}
+kable(bictable, digits = 2) %>% 
+  kable_classic(full_width = FALSE)
+```
+
+**Table 2** shows the results of the BIC analysis of model 1 versus model 2
+
 - **Model 1** has a BIC value of `r round(bictable$BIC[2], 2)`
 - **Model 2** has a BIC value of `r round(bictable$BIC[1], 2)`
-- The Delta BIC value of `r round(aictable$Delta_BIC[2], 2)` is small, providing weak evidence that model 2 is better fit. This difference in delta AIC versus delta BIC is likely due to BIC penalizing model 2 for having 4 parameters to model 1's 3 parameters. 
+- The Delta BIC value of `r round(bictable$Delta_BIC[2], 2)` is small, providing weak evidence that model 2 is better fit. This difference in delta AIC versus delta BIC is likely due to BIC penalizing model 2 for having 4 parameters to model 1's 3 parameters. 
 
 ### Comparing models using ten-fold cross validation
+
+#### Using subsets of the data to train and test each model
 
 ```{r}
 # setting the number of folds and repeating folds through the entirety of the data frame
@@ -86,6 +107,8 @@ train_df <- calcofi_fold %>%
   filter(group != 1)
 ```
 
+#### Making a root mean squared error (RMSE) function to test model fit
+
 ```{r}
 #creating a function for RMSE
 calc_rmse <- function(x, y) {
@@ -95,6 +118,8 @@ calc_rmse <- function(x, y) {
   return(rmse)
 }
 ```
+
+#### Testing the cross validation
 
 ```{r}
 # training the data set to make two linear regression models
@@ -111,30 +136,32 @@ predict_test <- test_df %>%
 rmse_predict_test <- predict_test %>% 
   summarize(rmse_model1 = calc_rmse(model1, o2sat),
             rmse_model2 = calc_rmse(model2, o2sat))
-
-kbl(rmse_predict_test, caption = "Table 2: Model 1 and Model 2 RMSE Value Outputs") %>% 
-  kable_styling(c("striped"), full_width = FALSE)
 ```
 
+#### Calculating RMSE over all folds and finding the mean
 
 ```{r}
 # iterating over all folds
 
 rmse_df <- data.frame()
 
+# using a for loop to calculate over all ten folds
 for(i in 1:folds) {
   kfold_test_df <- calcofi_fold %>% 
     filter(group == i)
   kfold_train_df <- calcofi_fold %>% 
     filter(group != i)
   
+  # linear regressions for each fold
   kfold_model1 <- lm(f1, data = kfold_train_df)
   kfold_model2 <- lm(f2, data = kfold_train_df)
   
+  # creating new columns with the predictions from each fold
   kfold_pred_df <- kfold_test_df %>% 
     mutate(model1 = predict(kfold_model1, kfold_test_df),
            model2 = predict(kfold_model2, .))
   
+  # making a data frame with the RMSE results
   kfold_rmse_df <- kfold_pred_df %>% 
     summarize(rmse_model1 = calc_rmse(model1, o2sat),
               rmse_model2 = calc_rmse(model2, o2sat),
@@ -142,12 +169,22 @@ for(i in 1:folds) {
   rmse_df <- bind_rows(rmse_df, kfold_rmse_df)
 }
 
-rmse_df %>% 
+# finding the average RMSE and storing in a table
+rmse_table <- rmse_df %>% 
   summarize(mean_rmse_model1 = mean(rmse_model1),
             mean_rmse_model2 = mean(rmse_model2))
 ```
 
+```{r, results = TRUE}
+kable(rmse_table, col.names = c('Model 1 mean RMSE', 'Model 2 mean RMSE'), digits = 2) %>% 
+  kable_classic(full_width = FALSE)
+```
+
+**Table 3** displays the mean RMSE for both model 1 and model 2. Model 2 has a lower RMSE, indicating that it is better fit than model 1.
+
 ### Finalize the model
+
+The results of AIC and BIC analysis, as well as the ten-fold cross validation indicate that model 2 is a better fit by all explored measures. 
 
 ```{r}
 final_model <- lm(f2, data = calcofi)

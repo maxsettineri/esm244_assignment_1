@@ -581,7 +581,18 @@ display: none;
 </div>
 
 
-<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+<div id="overview" class="section level3">
+<h3>Overview</h3>
+<p>This report examines data taken from the CalCOFI hydropgraphic
+database. The relationship between oxygen saturation, water temperature,
+salinity, phosphate concentration, and depth is explored through two
+different models developed using multiple linear regression. These two
+models are then compared using AIC, BIC, and ten-fold cross validation
+to determine best fit.</p>
+</div>
+<div id="setup" class="section level3">
+<h3>Setup</h3>
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, results = FALSE)
 
 library(AICcmodavg)
 library(tidyverse)
@@ -589,8 +600,9 @@ library(here)
 library(equatiomatic)
 library(kableExtra)</code></pre>
 <pre class="r"><code>calcofi &lt;- read_csv(here(&#39;data&#39;, &#39;calcofi_seawater_samples.csv&#39;)) </code></pre>
-<div id="multiple-linear-regression-models" class="section level2">
-<h2>Multiple Linear Regression Models</h2>
+</div>
+<div id="multiple-linear-regression-models" class="section level3">
+<h3>Multiple Linear Regression Models</h3>
 <p>Creating two multiple linear regression models:</p>
 <ul>
 <li>Oxygen saturation as a function of water temperature, salinity, and
@@ -604,44 +616,255 @@ model1 &lt;- lm(f1, data = calcofi)
 f2 &lt;- o2sat ~ t_deg_c + salinity + po4u_m + depth_m
 model2 &lt;- lm(f2, data = calcofi)</code></pre>
 </div>
-<div id="using-aic-to-identify-the-better-model" class="section level2">
-<h2>Using AIC to identify the better model</h2>
-<pre class="r"><code>aictab(list(model1, model2))</code></pre>
-<pre><code>## 
-## Model selection based on AICc:
-## 
-##      K   AICc Delta_AICc AICcWt Cum.Wt      LL
-## Mod2 6 616.60       0.00   0.77   0.77 -301.85
-## Mod1 5 619.03       2.42   0.23   1.00 -304.19</code></pre>
-<pre class="r"><code>aictable &lt;- aictab(list(model1, model2))</code></pre>
+<div id="using-aic-to-identify-the-better-model" class="section level3">
+<h3>Using AIC to identify the better model</h3>
+<pre class="r"><code>aictab(list(model1, model2))
+# AIC Model 1: 619.03
+# AIC Model 2: 616.60
+
+# storing a table of AIC results
+aictable &lt;- aictab(list(model1, model2))</code></pre>
+<pre class="r"><code>kable(aictable, digits = 2) %&gt;% 
+  kable_classic(full_width = FALSE)</code></pre>
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+Modnames
+</th>
+<th style="text-align:right;">
+K
+</th>
+<th style="text-align:right;">
+AICc
+</th>
+<th style="text-align:right;">
+Delta_AICc
+</th>
+<th style="text-align:right;">
+ModelLik
+</th>
+<th style="text-align:right;">
+AICcWt
+</th>
+<th style="text-align:right;">
+LL
+</th>
+<th style="text-align:right;">
+Cum.Wt
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+Mod2
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+616.60
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+<td style="text-align:right;">
+1.0
+</td>
+<td style="text-align:right;">
+0.77
+</td>
+<td style="text-align:right;">
+-301.85
+</td>
+<td style="text-align:right;">
+0.77
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+Mod1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+619.03
+</td>
+<td style="text-align:right;">
+2.42
+</td>
+<td style="text-align:right;">
+0.3
+</td>
+<td style="text-align:right;">
+0.23
+</td>
+<td style="text-align:right;">
+-304.19
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 1</strong> shows the results of the AIC analysis of
+model 1 versus model 2</p>
+<ul>
+<li><strong>Model 1</strong> has an AIC value of 619.03</li>
+<li><strong>Model 2</strong> has an AIC value of 616.6</li>
+<li>The Delta AIC value of 2.42 is large enough to indicate that model 2
+is significantly better fit</li>
+</ul>
 </div>
-<div id="using-bic-to-identify-the-better-model" class="section level2">
-<h2>Using BIC to identify the better model</h2>
-<pre class="r"><code>bictab(list(model1, model2))</code></pre>
-<pre><code>## 
-## Model selection based on BIC:
-## 
-##      K    BIC Delta_BIC BICWt Cum.Wt      LL
-## Mod2 6 631.33      0.00  0.51   0.51 -301.85
-## Mod1 5 631.41      0.08  0.49   1.00 -304.19</code></pre>
+<div id="using-bic-to-identify-the-better-model" class="section level3">
+<h3>Using BIC to identify the better model</h3>
+<pre class="r"><code>bictab(list(model1, model2))
+# BIC Model 1: 631.44
+# BIC Model 2: 631.33
+
+# storing a table with BIC results
+bictable &lt;- bictab(list(model1, model2))</code></pre>
+<pre class="r"><code>kable(bictable, digits = 2) %&gt;% 
+  kable_classic(full_width = FALSE)</code></pre>
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+Modnames
+</th>
+<th style="text-align:right;">
+K
+</th>
+<th style="text-align:right;">
+BIC
+</th>
+<th style="text-align:right;">
+Delta_BIC
+</th>
+<th style="text-align:right;">
+ModelLik
+</th>
+<th style="text-align:right;">
+BICWt
+</th>
+<th style="text-align:right;">
+LL
+</th>
+<th style="text-align:right;">
+Cum.Wt
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+Mod2
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+631.33
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+<td style="text-align:right;">
+0.51
+</td>
+<td style="text-align:right;">
+-301.85
+</td>
+<td style="text-align:right;">
+0.51
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+Mod1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+631.41
+</td>
+<td style="text-align:right;">
+0.08
+</td>
+<td style="text-align:right;">
+0.96
+</td>
+<td style="text-align:right;">
+0.49
+</td>
+<td style="text-align:right;">
+-304.19
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 2</strong> shows the results of the BIC analysis of
+model 1 versus model 2</p>
+<ul>
+<li><strong>Model 1</strong> has a BIC value of 631.41</li>
+<li><strong>Model 2</strong> has a BIC value of 631.33</li>
+<li>The Delta BIC value of 0.08 is small, providing weak evidence that
+model 2 is better fit. This difference in delta AIC versus delta BIC is
+likely due to BIC penalizing model 2 for having 4 parameters to model
+1’s 3 parameters.</li>
+</ul>
 </div>
-<div id="comparing-models-using-ten-fold-cross-validation" class="section level2">
-<h2>Comparing models using ten-fold cross validation</h2>
-<pre class="r"><code>folds &lt;- 10
+<div id="comparing-models-using-ten-fold-cross-validation" class="section level3">
+<h3>Comparing models using ten-fold cross validation</h3>
+<div id="using-subsets-of-the-data-to-train-and-test-each-model" class="section level4">
+<h4>Using subsets of the data to train and test each model</h4>
+<pre class="r"><code># setting the number of folds and repeating folds through the entirety of the data frame
+folds &lt;- 10
 fold_vec &lt;- rep(1:folds, length.out = nrow(calcofi))
 
-set.seed(42)
+set.seed(42) # setting seed for reproducibility 
 calcofi_fold &lt;- calcofi %&gt;% 
-  mutate(group = sample(fold_vec, size = n(), replace = FALSE))
+  mutate(group = sample(fold_vec, size = n(), replace = FALSE)) # binning data into 10 randomly selected groups
 
-table(calcofi_fold$group)</code></pre>
-<pre><code>## 
-##  1  2  3  4  5  6  7  8  9 10 
-## 10 10 10 10 10 10 10 10 10 10</code></pre>
-<pre class="r"><code>test_df &lt;- calcofi_fold %&gt;% 
+table(calcofi_fold$group)
+
+# creating a subset of data for testing the model
+test_df &lt;- calcofi_fold %&gt;% 
   filter(group ==1)
+
+# making a subset of data to train the model
 train_df &lt;- calcofi_fold %&gt;% 
   filter(group != 1)</code></pre>
+</div>
+<div id="making-a-root-mean-squared-error-rmse-function-to-test-model-fit" class="section level4">
+<h4>Making a root mean squared error (RMSE) function to test model
+fit</h4>
 <pre class="r"><code>#creating a function for RMSE
 calc_rmse &lt;- function(x, y) {
   rmse &lt;- (x - y)^2 %&gt;% 
@@ -649,7 +872,10 @@ calc_rmse &lt;- function(x, y) {
     sqrt()
   return(rmse)
 }</code></pre>
-<pre class="r"><code># training the dataset for make two linear regression models
+</div>
+<div id="testing-the-cross-validation" class="section level4">
+<h4>Testing the cross validation</h4>
+<pre class="r"><code># training the data set to make two linear regression models
 
 training_model1 &lt;- lm(f1, data = train_df)
 training_model2 &lt;- lm(f2, data = train_df)
@@ -662,52 +888,31 @@ predict_test &lt;- test_df %&gt;%
 
 rmse_predict_test &lt;- predict_test %&gt;% 
   summarize(rmse_model1 = calc_rmse(model1, o2sat),
-            rmse_model2 = calc_rmse(model2, o2sat))
-
-kbl(rmse_predict_test, caption = &quot;Table 2: Model 1 and Model 2 RMSE Value Outputs&quot;) %&gt;% 
-  kable_styling(c(&quot;striped&quot;), full_width = FALSE)</code></pre>
-<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
-<caption>
-Table 2: Model 1 and Model 2 RMSE Value Outputs
-</caption>
-<thead>
-<tr>
-<th style="text-align:right;">
-rmse_model1
-</th>
-<th style="text-align:right;">
-rmse_model2
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:right;">
-8.859422
-</td>
-<td style="text-align:right;">
-9.497512
-</td>
-</tr>
-</tbody>
-</table>
+            rmse_model2 = calc_rmse(model2, o2sat))</code></pre>
+</div>
+<div id="calculating-rmse-over-all-folds-and-finding-the-mean" class="section level4">
+<h4>Calculating RMSE over all folds and finding the mean</h4>
 <pre class="r"><code># iterating over all folds
 
 rmse_df &lt;- data.frame()
 
+# using a for loop to calculate over all ten folds
 for(i in 1:folds) {
   kfold_test_df &lt;- calcofi_fold %&gt;% 
     filter(group == i)
   kfold_train_df &lt;- calcofi_fold %&gt;% 
     filter(group != i)
   
+  # linear regressions for each fold
   kfold_model1 &lt;- lm(f1, data = kfold_train_df)
   kfold_model2 &lt;- lm(f2, data = kfold_train_df)
   
+  # creating new columns with the predictions from each fold
   kfold_pred_df &lt;- kfold_test_df %&gt;% 
     mutate(model1 = predict(kfold_model1, kfold_test_df),
            model2 = predict(kfold_model2, .))
   
+  # making a data frame with the RMSE results
   kfold_rmse_df &lt;- kfold_pred_df %&gt;% 
     summarize(rmse_model1 = calc_rmse(model1, o2sat),
               rmse_model2 = calc_rmse(model2, o2sat),
@@ -715,14 +920,44 @@ for(i in 1:folds) {
   rmse_df &lt;- bind_rows(rmse_df, kfold_rmse_df)
 }
 
-rmse_df %&gt;% 
+# finding the average RMSE and storing in a table
+rmse_table &lt;- rmse_df %&gt;% 
   summarize(mean_rmse_model1 = mean(rmse_model1),
             mean_rmse_model2 = mean(rmse_model2))</code></pre>
-<pre><code>##   mean_rmse_model1 mean_rmse_model2
-## 1         4.976605         4.876322</code></pre>
+<pre class="r"><code>kable(rmse_table, col.names = c(&#39;Model 1 mean RMSE&#39;, &#39;Model 2 mean RMSE&#39;), digits = 2) %&gt;% 
+  kable_classic(full_width = FALSE)</code></pre>
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Model 1 mean RMSE
+</th>
+<th style="text-align:right;">
+Model 2 mean RMSE
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+4.98
+</td>
+<td style="text-align:right;">
+4.88
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 3</strong> displays the mean RMSE for both model 1 and
+model 2. Model 2 has a lower RMSE, indicating that it is better fit than
+model 1.</p>
 </div>
-<div id="finalize-the-model" class="section level1">
-<h1>Finalize the model</h1>
+</div>
+<div id="finalize-the-model" class="section level3">
+<h3>Finalize the model</h3>
+<p>The results of AIC and BIC analysis, as well as the ten-fold cross
+validation indicate that model 2 is a better fit by all explored
+measures.</p>
 <pre class="r"><code>final_model &lt;- lm(f2, data = calcofi)</code></pre>
 <p><strong>Final model:</strong> <span class="math display">\[
 \begin{aligned}
@@ -732,7 +967,7 @@ rmse_df %&gt;%
 &amp;\quad \beta_{4}(\operatorname{depth\_m}) + \epsilon
 \end{aligned}
 \]</span></p>
-<p><strong>And with coefficients:</strong> <span class="math display">\[
+<p><strong>Final model with coefficients:</strong> <span class="math display">\[
 \begin{aligned}
 \operatorname{\widehat{o2sat}} &amp;= 144.07 -
 0.75(\operatorname{t\_deg\_c}) - 0.44(\operatorname{salinity}) -
@@ -740,6 +975,8 @@ rmse_df %&gt;%
 &amp;\quad 0.03(\operatorname{depth\_m})
 \end{aligned}
 \]</span></p>
+<p><strong>Data Citation:</strong> CalCOFI data are available for use
+without restriction. Data downloaded from <a href="https://calcofi.org/ccdata.html" class="uri">https://calcofi.org/ccdata.html</a>. Accessed 1/31/2023.</p>
 </div>
 
 
