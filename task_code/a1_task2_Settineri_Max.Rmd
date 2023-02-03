@@ -37,6 +37,18 @@ model2 <- lm(f2, data = calcofi)
 ## Using AIC to identify the better model
 
 ```{r}
+aictab(list(model1, model2))
+```
+
+## Using BIC to identify the better model
+
+```{r}
+bictab(list(model1, model2))
+```
+
+## Comparing models using ten-fold cross validation
+
+```{r}
 
 ```
 
